@@ -19,8 +19,8 @@ use curve25519_dalek::digest::Digest;
 use curve25519_dalek::edwards::CompressedEdwardsY;
 use curve25519_dalek::scalar::Scalar;
 
-use rand::CryptoRng;
-use rand::Rng;
+use rand_os::rand_core::CryptoRng;
+use rand_os::rand_core::RngCore;
 
 use sha2::Sha512;
 
@@ -126,21 +126,20 @@ impl SecretKey {
     /// # Example
     ///
     /// ```
-    /// extern crate rand;
+    /// extern crate rand_os;
     /// extern crate sha2;
     /// extern crate ed25519_dalek;
     ///
     /// # #[cfg(feature = "std")]
     /// # fn main() {
     /// #
-    /// use rand::Rng;
-    /// use rand::rngs::OsRng;
+    /// use rand_os::OsRng;
     /// use sha2::Sha512;
     /// use ed25519_dalek::PublicKey;
     /// use ed25519_dalek::SecretKey;
     /// use ed25519_dalek::Signature;
     ///
-    /// let mut csprng: OsRng = OsRng::new().unwrap();
+    /// let mut csprng: OsRng = OsRng;
     /// let secret_key: SecretKey = SecretKey::generate(&mut csprng);
     /// # }
     /// #
@@ -151,18 +150,17 @@ impl SecretKey {
     /// Afterwards, you can generate the corresponding public:
     ///
     /// ```
-    /// # extern crate rand;
+    /// # extern crate rand_os;
     /// # extern crate ed25519_dalek;
     /// #
     /// # fn main() {
     /// #
-    /// # use rand::Rng;
-    /// # use rand::thread_rng;
+    /// # use rand_os::OsRng;
     /// # use ed25519_dalek::PublicKey;
     /// # use ed25519_dalek::SecretKey;
     /// # use ed25519_dalek::Signature;
     /// #
-    /// # let mut csprng = thread_rng();
+    /// # let mut csprng = OsRng;
     /// # let secret_key: SecretKey = SecretKey::generate(&mut csprng);
     ///
     /// let public_key: PublicKey = (&secret_key).into();
@@ -174,7 +172,7 @@ impl SecretKey {
     /// A CSPRNG with a `fill_bytes()` method, e.g. `rand::OsRng`
     pub fn generate<T>(csprng: &mut T) -> SecretKey
     where
-        T: CryptoRng + Rng,
+        T: CryptoRng + RngCore,
     {
         let mut sk: SecretKey = SecretKey([0u8; 32]);
 
@@ -275,18 +273,17 @@ impl<'a> From<&'a SecretKey> for ExpandedSecretKey {
     /// # Examples
     ///
     /// ```
-    /// # extern crate rand;
+    /// # extern crate rand_os;
     /// # extern crate sha2;
     /// # extern crate ed25519_dalek;
     /// #
     /// # fn main() {
     /// #
-    /// use rand::Rng;
-    /// use rand::thread_rng;
+    /// use rand_os::OsRng;
     /// use sha2::Sha512;
     /// use ed25519_dalek::{SecretKey, ExpandedSecretKey};
     ///
-    /// let mut csprng = thread_rng();
+    /// let mut csprng = OsRng;
     /// let secret_key: SecretKey = SecretKey::generate(&mut csprng);
     /// let expanded_secret_key: ExpandedSecretKey = ExpandedSecretKey::from(&secret_key);
     /// # }
@@ -323,19 +320,18 @@ impl ExpandedSecretKey {
     /// # Examples
     ///
     /// ```
-    /// # extern crate rand;
+    /// # extern crate rand_os;
     /// # extern crate sha2;
     /// # extern crate ed25519_dalek;
     /// #
     /// # #[cfg(all(feature = "sha2", feature = "std"))]
     /// # fn main() {
     /// #
-    /// use rand::Rng;
-    /// use rand::rngs::OsRng;
+    /// use rand_os::OsRng;
     /// use sha2::Sha512;
     /// use ed25519_dalek::{SecretKey, ExpandedSecretKey};
     ///
-    /// let mut csprng: OsRng = OsRng::new().unwrap();
+    /// let mut csprng: OsRng = OsRng;
     /// let secret_key: SecretKey = SecretKey::generate(&mut csprng);
     /// let expanded_secret_key: ExpandedSecretKey = ExpandedSecretKey::from(&secret_key);
     /// let expanded_secret_key_bytes: [u8; 64] = expanded_secret_key.to_bytes();
@@ -365,7 +361,7 @@ impl ExpandedSecretKey {
     /// # Examples
     ///
     /// ```
-    /// # extern crate rand;
+    /// # extern crate rand_os;
     /// # extern crate sha2;
     /// # extern crate ed25519_dalek;
     /// #
@@ -374,12 +370,11 @@ impl ExpandedSecretKey {
     /// # #[cfg(all(feature = "sha2", feature = "std"))]
     /// # fn do_test() -> Result<ExpandedSecretKey, SignatureError> {
     /// #
-    /// use rand::Rng;
-    /// use rand::rngs::OsRng;
+    /// use rand_os::OsRng;
     /// use ed25519_dalek::{SecretKey, ExpandedSecretKey};
     /// use ed25519_dalek::SignatureError;
     ///
-    /// let mut csprng: OsRng = OsRng::new().unwrap();
+    /// let mut csprng: OsRng = OsRng;
     /// let secret_key: SecretKey = SecretKey::generate(&mut csprng);
     /// let expanded_secret_key: ExpandedSecretKey = ExpandedSecretKey::from(&secret_key);
     /// let bytes: [u8; 64] = expanded_secret_key.to_bytes();

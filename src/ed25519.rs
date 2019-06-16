@@ -11,8 +11,8 @@
 
 use core::default::Default;
 
-use rand::CryptoRng;
-use rand::Rng;
+use rand_os::rand_core::CryptoRng;
+use rand_os::rand_core::RngCore;
 
 #[cfg(feature = "serde")]
 use serde::de::Error as SerdeError;
@@ -63,17 +63,16 @@ pub use crate::signature::*;
 ///
 /// ```
 /// extern crate ed25519_dalek;
-/// extern crate rand;
+/// extern crate rand_os;
 ///
 /// use ed25519_dalek::verify_batch;
 /// use ed25519_dalek::Keypair;
 /// use ed25519_dalek::PublicKey;
 /// use ed25519_dalek::Signature;
-/// use rand::thread_rng;
-/// use rand::rngs::ThreadRng;
+/// use rand_os::OsRng;
 ///
 /// # fn main() {
-/// let mut csprng: ThreadRng = thread_rng();
+/// let mut csprng = OsRng;
 /// let keypairs: Vec<Keypair> = (0..64).map(|_| Keypair::generate(&mut csprng)).collect();
 /// let msg: &[u8] = b"They're good dogs Brant";
 /// let messages: Vec<&[u8]> = (0..64).map(|_| msg).collect();
@@ -103,15 +102,17 @@ pub fn verify_batch(
     use std::vec::Vec;
 
     use core::iter::once;
-    use rand::thread_rng;
+    use rand_os::OsRng;
 
     use curve25519_dalek::traits::IsIdentity;
     use curve25519_dalek::traits::VartimeMultiscalarMul;
 
     // Select a random 128-bit scalar for each signature.
+    let mut rng = OsRng;
+    let val = ((rng.next_u64() as u128) << 64) | (rng.next_u64() as u128);
     let zs: Vec<Scalar> = signatures
         .iter()
-        .map(|_| Scalar::from(thread_rng().gen::<u128>()))
+        .map(|_| Scalar::from(val))
         .collect();
 
     // Compute the basepoint coefficient, ∑ s[i]z[i] (mod l)
@@ -215,18 +216,17 @@ impl Keypair {
     /// # Example
     ///
     /// ```
-    /// extern crate rand;
+    /// extern crate rand_os;
     /// extern crate ed25519_dalek;
     ///
     /// # #[cfg(feature = "std")]
     /// # fn main() {
     ///
-    /// use rand::Rng;
-    /// use rand::rngs::OsRng;
+    /// use rand_os::OsRng;
     /// use ed25519_dalek::Keypair;
     /// use ed25519_dalek::Signature;
     ///
-    /// let mut csprng: OsRng = OsRng::new().unwrap();
+    /// let mut csprng = OsRng;
     /// let keypair: Keypair = Keypair::generate(&mut csprng);
     ///
     /// # }
@@ -246,7 +246,7 @@ impl Keypair {
     /// Other suitable hash functions include Keccak-512 and Blake2b-512.
     pub fn generate<R>(csprng: &mut R) -> Keypair
     where
-        R: CryptoRng + Rng,
+        R: CryptoRng + RngCore,
     {
         let sk: SecretKey = SecretKey::generate(csprng);
         let pk: PublicKey = (&sk).into();
@@ -281,17 +281,17 @@ impl Keypair {
     ///
     /// ```
     /// extern crate ed25519_dalek;
-    /// extern crate rand;
+    /// extern crate rand_os;
     ///
     /// use ed25519_dalek::Digest;
     /// use ed25519_dalek::Keypair;
     /// use ed25519_dalek::Sha512;
     /// use ed25519_dalek::Signature;
-    /// use rand::thread_rng;
+    /// use rand_os::OsRng;
     ///
     /// # #[cfg(feature = "std")]
     /// # fn main() {
-    /// let mut csprng = thread_rng();
+    /// let mut csprng = OsRng;
     /// let keypair: Keypair = Keypair::generate(&mut csprng);
     /// let message: &[u8] = b"All I want is to pet all of the dogs.";
     ///
@@ -328,17 +328,17 @@ impl Keypair {
     ///
     /// ```
     /// # extern crate ed25519_dalek;
-    /// # extern crate rand;
+    /// # extern crate rand_os;
     /// #
     /// # use ed25519_dalek::Digest;
     /// # use ed25519_dalek::Keypair;
     /// # use ed25519_dalek::Signature;
     /// # use ed25519_dalek::Sha512;
-    /// # use rand::thread_rng;
+    /// # use rand_os::OsRng;
     /// #
     /// # #[cfg(feature = "std")]
     /// # fn main() {
-    /// # let mut csprng = thread_rng();
+    /// # let mut csprng = OsRng;
     /// # let keypair: Keypair = Keypair::generate(&mut csprng);
     /// # let message: &[u8] = b"All I want is to pet all of the dogs.";
     /// # let mut prehashed: Sha512 = Sha512::new();
@@ -399,17 +399,17 @@ impl Keypair {
     ///
     /// ```
     /// extern crate ed25519_dalek;
-    /// extern crate rand;
+    /// extern crate rand_os;
     ///
     /// use ed25519_dalek::Digest;
     /// use ed25519_dalek::Keypair;
     /// use ed25519_dalek::Signature;
     /// use ed25519_dalek::Sha512;
-    /// use rand::thread_rng;
+    /// use rand_os::OsRng;
     ///
     /// # #[cfg(feature = "std")]
     /// # fn main() {
-    /// let mut csprng = thread_rng();
+    /// let mut csprng = OsRng;
     /// let keypair: Keypair = Keypair::generate(&mut csprng);
     /// let message: &[u8] = b"All I want is to pet all of the dogs.";
     ///

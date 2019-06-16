@@ -13,15 +13,15 @@
 extern crate bincode;
 extern crate ed25519_dalek;
 extern crate hex;
-extern crate rand;
+extern crate rand_os;
 extern crate sha2;
 
 use ed25519_dalek::*;
 
 use hex::FromHex;
 
-use rand::thread_rng;
-use rand::rngs::ThreadRng;
+use rand_os::OsRng;
+use rand_os::rand_core::RngCore;
 
 use sha2::Sha512;
 
@@ -117,7 +117,7 @@ mod integrations {
 
     #[test]
     fn sign_verify() {  // TestSignVerify
-        let mut csprng: ThreadRng;
+        let mut csprng: OsRng;
         let keypair: Keypair;
         let good_sig: Signature;
         let bad_sig:  Signature;
@@ -125,7 +125,7 @@ mod integrations {
         let good: &[u8] = "test message".as_bytes();
         let bad:  &[u8] = "wrong message".as_bytes();
 
-        csprng  = thread_rng();
+        csprng  = OsRng;
         keypair  = Keypair::generate(&mut csprng);
         good_sig = keypair.sign(&good);
         bad_sig  = keypair.sign(&bad);
@@ -140,7 +140,7 @@ mod integrations {
 
     #[test]
     fn ed25519ph_sign_verify() {
-        let mut csprng: ThreadRng;
+        let mut csprng: OsRng;
         let keypair: Keypair;
         let good_sig: Signature;
         let bad_sig:  Signature;
@@ -163,7 +163,7 @@ mod integrations {
 
         let context: &[u8] = b"testing testing 1 2 3";
 
-        csprng   = thread_rng();
+        csprng   = OsRng;
         keypair  = Keypair::generate(&mut csprng);
         good_sig = keypair.sign_prehashed(prehashed_good1, Some(context));
         bad_sig  = keypair.sign_prehashed(prehashed_bad1,  Some(context));
@@ -186,7 +186,7 @@ mod integrations {
             b"Fuck dumbin' it down, spit ice, skip jewellery: Molotov cocktails on me like accessories.",
             b"Hey, I never cared about your bucks, so if I run up with a mask on, probably got a gas can too.",
             b"And I'm not here to fill 'er up. Nope, we came to riot, here to incite, we don't want any of your stuff.", ];
-        let mut csprng: ThreadRng = thread_rng();
+        let mut csprng = OsRng;
         let mut keypairs: Vec<Keypair> = Vec::new();
         let mut signatures: Vec<Signature> = Vec::new();
 
@@ -204,7 +204,7 @@ mod integrations {
 
     #[test]
     fn pubkey_from_secret_and_expanded_secret() {
-        let mut csprng = thread_rng();
+        let mut csprng = OsRng;
         let secret: SecretKey = SecretKey::generate(&mut csprng);
         let expanded_secret: ExpandedSecretKey = (&secret).into();
         let public_from_secret: PublicKey = (&secret).into(); // XXX eww
