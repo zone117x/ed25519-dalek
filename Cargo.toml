@@ -18,6 +18,7 @@ travis-ci = { repository = "dalek-cryptography/ed25519-dalek", branch = "master"
 [dependencies.curve25519-dalek]
 version = "1"
 default-features = false
+git = "https://github.com/zone117x/curve25519-dalek"
 
 [dependencies.rand_os]
 version = "0.2.0"
